@@ -5,6 +5,7 @@ import com.sachet.productservice.model.Product
 import com.sachet.productservice.repository.ProductRepository
 import com.sachet.productservice.service.ProductService
 import org.springframework.stereotype.Service
+import java.lang.Exception
 
 @Service
 class ProductServiceImpl(
@@ -22,6 +23,19 @@ class ProductServiceImpl(
 
     override fun findAll(): List<Product> {
         return productRepository.findAll()
+    }
+
+    override fun reduceQuantity(productId: Long, quantity: Long) {
+        val product = productRepository
+            .findById(productId)
+            .orElseThrow{
+                NotFoundException("Product with id $productId Not Found")
+            }
+        if (product.quantity!! < quantity) {
+            throw Exception("Product does not have sufficient Quantity")
+        }
+        product.quantity = product.quantity!! - quantity
+        productRepository.save(product)
     }
 
     override fun delete(product: Product) {
